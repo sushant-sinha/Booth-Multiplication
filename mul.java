@@ -142,7 +142,7 @@ public class mul extends Application {
                 P = P + r + "0";
                 result.setText(result.getText()+"\n\nThe initial value of AC+QR+Q(n+1) is " + P);
                 result.setText(result.getText()+"\n-------------------------------------------------------------------------");
-                for (int i = y; i >=0; i--) {
+                for (int i = y; i>0; i--) {
 
                     if (P.substring(P.length() - 2).equals("01")) {
                         P = binaryaddn(P, A);
