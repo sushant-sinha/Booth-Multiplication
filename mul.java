@@ -142,7 +142,7 @@ public class mul extends Application {
                 P = P + r + "0";
                 result.setText(result.getText()+"\n\nThe initial value of AC+QR+Q(n+1) is " + P);
                 result.setText(result.getText()+"\n-------------------------------------------------------------------------");
-                for (int i = y; i>0; i--) {
+                for (int i = y; i >0; i--) {
 
                     if (P.substring(P.length() - 2).equals("01")) {
                         P = binaryaddn(P, A);
@@ -167,7 +167,21 @@ public class mul extends Application {
 
                 result.setText(result.getText()+"\nThe product of the numbers entered in binary is " +P);
                 if (P.charAt(0) == '0') {
-                    //result.setText(result.getText()+"\nIt's Decimal Equivalent is "+P);
+                    result.setText(result.getText()+"\nIt's Decimal Equivalent is ");
+                    
+                    Long n = Long.parseLong(P);
+                    Long rem = (long) 0;
+                    Long ans = (long) 0;
+                    Long val = (long) 1;
+            
+                    while (n != 0) {
+                        rem = n % 10;
+                        ans = ans + rem * val;
+                        n = n / 10;
+                        val = val * 2;
+                    }
+                    
+                    result.setText(result.getText()+ans);
                     int i;
                     for (i = 0; i < P.length(); i++) {
                         if (P.charAt(i) == '0') { // leftmost zeroes are removed to get decimal eqv to avoid redundancy 
@@ -185,8 +199,23 @@ public class mul extends Application {
                 }
 
                 if (P.charAt(0) == '1') {
-                    result.setText(result.getText()+"MSB = 1 indicates that the given number is negative." +" It's magnitude is given by the magnitude of it's 2's complement, that is ");
-                    binarytodec(get2scomplement(P));
+                    result.setText(result.getText()+"\nMSB = 1 indicates that the given number is negative." +" It's magnitude is given by the magnitude of it's 2's complement, that is ");
+                    String comp=get2scomplement(P);
+                    Long n = Long.parseLong(comp);
+                    Long rem = (long) 0;
+                    Long ans = (long) 0;
+                    Long val = (long) 1;
+            
+                    while (n != 0) {
+                        rem = n % 10;
+                        ans = ans + rem * val;
+                        n = n / 10;
+                        val = val * 2;
+                    }
+                    
+                    result.setText(result.getText()+ans);
+                 
+                                    
                 }
                 
                 primaryStage.setScene(scene1);
