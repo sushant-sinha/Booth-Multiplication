@@ -1,8 +1,8 @@
 /**
  * Write a description of mul here.
  * 
- * @author (Sushant Sinha) 
- * @version (a version number or a date)
+ * @author Sushant Sinha
+ * @version v1.0.0
  */
 
 import javafx.application.Application;
@@ -24,6 +24,8 @@ import java.util.Scanner;
 
 
 public class mul extends Application {
+    
+    public boolean binarymode=false;
 
     public static void main(String[] args) {
         launch(args);
@@ -35,8 +37,16 @@ public class mul extends Application {
         GridPane root = new GridPane();
         GridPane output = new GridPane();
         Button btn = new Button("Multiply");
+        Button btn1 = new Button("Binary\nMode");
 
         btn.setStyle(
+            "-fx-background-radius: 5em; " +
+            "-fx-min-width: 90px; " +
+            "-fx-min-height: 90px; " +
+            "-fx-max-width: 90px; " +
+            "-fx-max-height: 90px;"
+        );
+        btn1.setStyle(
             "-fx-background-radius: 5em; " +
             "-fx-min-width: 90px; " +
             "-fx-min-height: 90px; " +
@@ -72,10 +82,11 @@ public class mul extends Application {
         root.setHgap(17);
         root.setVgap(20);
         root.add(btn, 25, 20);
-        root.add(t1, 20, 17);
-        root.add(t2, 30, 17);
-        root.add(multiplicand, 22, 17);
-        root.add(multiplier, 32, 17);
+        root.add(btn1, 25, 17);
+        root.add(t1, 15, 17);
+        root.add(t2, 35, 17);
+        root.add(multiplicand, 17, 17);
+        root.add(multiplier, 37, 17);
 
         output.setHgap(15);
         output.setVgap(50);
@@ -85,9 +96,19 @@ public class mul extends Application {
         primaryStage.setScene(scene);
         primaryStage.setTitle("BOOTH MULTIPLIER");
         primaryStage.show();
+        
+        btn1.setOnAction(new EventHandler < ActionEvent > () {
 
+            @Override
+            public void handle(ActionEvent arg0) {
+
+                binarymode=true;
+
+            }
+
+        });
+        
         // action events
-
         btn.setOnAction(new EventHandler < ActionEvent > () {
 
 
@@ -95,32 +116,118 @@ public class mul extends Application {
             @Override
             public void handle(ActionEvent arg0) {
 
+                // all the println statements are just for debugging and users reference
+                
+                System.out.println(binarymode);
+                
+                /*
                 int m1 = Integer.parseInt(multiplicand.getText());
                 int m2 = Integer.parseInt(multiplier.getText());
+                */
+               
+               int m1,m2;
+                
+               if(binarymode){
 
+                    String mcand=multiplicand.getText();
+                    String mpier=multiplier.getText();
+
+                    m1=0;
+                    m2=0;
+                    
+                    boolean mcandisneg=false,mpierisneg=false;
+                    
+                    // if negative.... then we need to take 2s complement... and then find its decimal value... and then add a negative sign
+                    
+                    if(mcand.charAt(0)=='1'){
+                        mcand=get2scomplement(mcand);
+                        mcandisneg=true;
+                    }
+                    
+                    if(mpier.charAt(0)=='1'){
+                        mpier=get2scomplement(mpier);
+                        mpierisneg=true;
+                    }
+                       
+                    char ar1[]=mcand.toCharArray();
+                    char ar2[]=mpier.toCharArray();
+
+                    for(int i=1; i<ar1.length;i++){
+                        if(ar1[i]=='1')
+                            m1+=Math.pow(2,(ar1.length-1-i));
+                        //System.out.println("m1="+m1);
+                    }
+                    
+                    
+                    if(mcandisneg)
+                        m1*=-1;
+                    
+
+                    //multiplier
+                    
+                    for(int i=1; i<ar2.length;i++){
+                        if(ar2[i]=='1')
+                            m2+=Math.pow(2,(ar2.length-1-i));
+                        System.out.println("m2="+m2);
+                    }
+
+                    if(mpierisneg)
+                        m2*=-1;
+
+                }
+
+                // if not binarymode.. then the input is in decimal format and ready to be used without any preprocessing
+                
+                else{
+                    
+                    m1 = Integer.parseInt(multiplicand.getText());
+                    m2 = Integer.parseInt(multiplier.getText());
+                    
+                }
+                
+                System.out.println("m1="+m1+" m2="+m2);
+                
+                // convert the multiplicand to binary
                 String m = getbinary(m1);
                 result.setText(result.getText()+m1 +", the multiplicand in signed 2s complement notation is " +m+"\n");
 
+                // convert the multiplier to binary
                 String r = getbinary(m2);
                 result.setText(result.getText()+m2 +", the multiplier in signed 2s complement notation is " +r);
+                
+                // no. of bits in multiplicand
                 int x = m.length();
+                
+                // no. of bits in mulitplier
                 int y = r.length();
                 result.setText("\n"+result.getText()+"\n-------------------------------------------------------------------------");
                 // determining initial values of A,S and P
-
+                
+                // not working...code breaks prolly
+                // testing whether the answer is compatible or not
                 if (m1 * m2 > 32767 || m1 * m2 < -32768) { // -2^15 < product < 2^15-1 for a 16 bit register
+                    
                     result.setText("\n"+result.getText()+"Product is out of range for a 16-bit register!!");
                     return;
                 }
-
+                
+                // A contains m0000 (the number of zeroes are same as the length of multiplier+1)
                 String A = m;
                 for (int i = 0; i <= y; i++) {
                     A = A + "0";
                 }
+                
+                System.out.println("A="+A);
 
                 result.setText(result.getText()+"\n\nThe initial value of BR (with appended zeroes for ease of addition) is " + A);
-
+                
+                // for debugging... "m" contains 2's complement of Multiplicand
+                System.out.println("m="+m);
+                
+                // S contains the original value... no sign.. its just binary
                 String S = get2scomplement(m.substring(1));
+                System.out.println("S="+S);
+                
 
                 if (m1 <= 0) {
                     S = "0" + S;
