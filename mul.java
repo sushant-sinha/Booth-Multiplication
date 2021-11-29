@@ -200,18 +200,12 @@ public class mul extends Application {
                 
                 // no. of bits in mulitplier
                 int y = r.length();
+
                 result.setText("\n"+result.getText()+"\n-------------------------------------------------------------------------");
                 // determining initial values of A,S and P
-                
-                // not working...code breaks prolly
-                // testing whether the answer is compatible or not
-                if (m1 * m2 > 32767 || m1 * m2 < -32768) { // -2^15 < product < 2^15-1 for a 16 bit register
-                    
-                    result.setText("\n"+result.getText()+"Product is out of range for a 16-bit register!!");
-                    return;
-                }
-                
-                // A contains m0000 (the number of zeroes are same as the length of multiplier+1)
+                                
+                // A contains m0000 (the number of zeroes are same as the length of multiplier+1 +1 is because we have got Qn+1)
+                // this means the length will be : length of multiplicand (AC) + length of multiplier (QR) + 1 (Qn+1)
                 String A = m;
                 for (int i = 0; i <= y; i++) {
                     A = A + "0";
@@ -219,12 +213,14 @@ public class mul extends Application {
                 
                 System.out.println("A="+A);
 
+                // here the zeroes were (above) for making the addition seamless with AC+QR+Qn+1... the QR+Qn+1 bits are anyhow being carried down when we are doing it handwritten
+                // A is BR
                 result.setText(result.getText()+"\n\nThe initial value of BR (with appended zeroes for ease of addition) is " + A);
                 
                 // for debugging... "m" contains 2's complement of Multiplicand
                 System.out.println("m="+m);
                 
-                // S contains the original value... no sign.. its just binary
+                // S is 2s complement of BR
                 String S = get2scomplement(m.substring(1));
                 System.out.println("S="+S);
                 
@@ -240,35 +236,49 @@ public class mul extends Application {
                 for (int i = 0; i <= y; i++) {
                     S = S + "0";
                 }
+
+                // S is 2s complement of BR
                 result.setText(result.getText()+"\n\nThe initial value of 2's complement of BR represented by BR'+1(with appended zeroes for ease of addition) is " + S);
 
+                // String P is the combined register... presents (0)(no. of zeroes equals length of AC)+(QR is copied)+("0" initialized Qn+1) ---> see line no. 257
                 String P = "";
                 for (int i = 0; i < x; i++) {
                     P += "0";
                 }
+
                 P = P + r + "0";
                 result.setText(result.getText()+"\n\nThe initial value of AC+QR+Q(n+1) is " + P);
                 result.setText(result.getText()+"\n-------------------------------------------------------------------------");
+
+                // for the number of bits in multiplier... it is SC
                 for (int i = y; i >0; i--) {
 
+                    // condition for QnQn+1=01
                     if (P.substring(P.length() - 2).equals("01")) {
+
+                        // add P to BR
                         P = binaryaddn(P, A);
                         P = shiftright(P);
                         result.setText(result.getText()+"\nThe value of    AC+QR+Q(n+1)    after          AC+QR+Q(n+1) + BR operation and right shift is                  " + P + "          for SC = " + i);
                     }
-                    
+
+                    // condition for QnQn+1=10                    
                     else if (P.substring(P.length() - 2).equals("10")) {
+
+                        // add P to 2s complement of BR
                         P = binaryaddn(P, S);
                         P = shiftright(P);
                         result.setText(result.getText()+"\nThe value of    AC+QR+Q(n+1)    after          AC+QR+Q(n+1) +  + BR'+1 operation and right shift is        " + P + "          for SC = " + i);
                     }
-                    
+
+                    // condition for QnQn+1=00 or QnQn+1=11                    
                     else {
                         P = shiftright(P);
                         result.setText(result.getText()+"\nThe value of    AC+QR+Q(n+1)    after          right shift is                                                                             " + P +"          for SC = " + i);
                     }
                 }
 
+                // remove the last character which was Qn+1
                 P = P.substring(0, P.length() - 1);
                 result.setText(result.getText()+"\n-------------------------------------------------------------------------");
 
@@ -280,7 +290,8 @@ public class mul extends Application {
                     Long rem = (long) 0;
                     Long ans = (long) 0;
                     Long val = (long) 1;
-            
+
+                    // since the base is 10...
                     while (n != 0) {
                         rem = n % 10;
                         ans = ans + rem * val;
@@ -289,20 +300,7 @@ public class mul extends Application {
                     }
                     
                     result.setText(result.getText()+ans);
-                    int i;
-                    for (i = 0; i < P.length(); i++) {
-                        if (P.charAt(i) == '0') { // leftmost zeroes are removed to get decimal eqv to avoid redundancy 
-                            continue;
-                        }
-                        break;
-                    }
-                    if (i == P.length()) { // this means that the string consists of zeroes only.
-                        // checking for 0
-                        result.setText(result.getText()+"0");
-
-                        return;
-                    }
-                    binarytodec(P.substring(i)); // after removing leading zeroes
+                    
                 }
 
                 if (P.charAt(0) == '1') {
@@ -357,6 +355,7 @@ public class mul extends Application {
             s2 += '0';
         }
 
+        // referred section
         String s3 = "";
         String carry = "1";
         for (int i = s2.length() - 1; i >= 0; i--) {
@@ -390,15 +389,25 @@ public class mul extends Application {
 
         String str1 = "";
 
-        if (n >= 0) {
+        if(n>=0){
 
             str1 = Integer.toBinaryString(n);
+            // get binary and adding 0 for showing its sign
             str1 = "0" + str1;
-        } else {
-            str1 = Integer.toBinaryString(-1 * n);
-            str1 = get2scomplement(str1);
-            str1 = "1" + str1;
+
         }
+
+        else{
+
+            // get binary for the positive number
+            str1 = Integer.toBinaryString(-1 * n);
+            // get 2s complement of the binary
+            str1 = get2scomplement(str1);
+            // add 1 for showing that its negative
+            str1 = "1" + str1;
+
+        }
+
         return str1;
 
     }
@@ -411,52 +420,35 @@ public class mul extends Application {
 
     public static String binaryaddn(String s1, String s2) {
 
-        String res = "";
+        String ans = "";
         String carry = "0";
-        for (int i = s1.length() - 1; i >= 0; i--) {
 
-            if (s1.charAt(i) == '1' && s2.charAt(i) == '1' && carry.equals("0") ||
-                (s1.charAt(i) == '0' && s2.charAt(i) == '1' &&
-                    carry.equals("1")) || s1.charAt(i) == '1' &&
-                s2.charAt(i) == '0' && carry.equals("1")) {
-                res = '0' + res;
+        for (int i=s1.length()-1;i>= 0;i--){
+
+            if(s1.charAt(i) == '1' && s2.charAt(i) == '1' && carry.equals("0") || (s1.charAt(i) == '0' && s2.charAt(i) == '1' && carry.equals("1")) || s1.charAt(i) == '1' && s2.charAt(i) == '0' && carry.equals("1")) {
+                ans = '0' + ans;
                 carry = "1";
-            } else if (s1.charAt(i) == '1' && s2.charAt(i) == '1' &&
-                carry.equals("1")) {
-                res = '1' + res;
+            }
+
+            else if (s1.charAt(i) == '1' && s2.charAt(i) == '1' && carry.equals("1")) {
+                ans = '1' + ans;
                 carry = "1";
-            } else if (s1.charAt(i) == '0' && s2.charAt(i) == '1' &&
-                carry.equals("0") || s1.charAt(i) == '1' &&
-                s2.charAt(i) == '0' && carry.equals("0") ||
-                s1.charAt(i) == '0' && s2.charAt(i) == '0' &&
-                carry.equals("1")) {
-                res = '1' + res;
+            }
+
+            else if (s1.charAt(i) == '0' && s2.charAt(i) == '1' && carry.equals("0") || s1.charAt(i) == '1' && s2.charAt(i) == '0' && carry.equals("0") || s1.charAt(i) == '0' && s2.charAt(i) == '0' && carry.equals("1")) {
+                ans = '1' + ans;
                 carry = "0";
-            } else if (s1.charAt(i) == '0' && s2.charAt(i) == '0' &&
-                carry.equals("0")) {
-                res = '0' + res;
+            }
+
+            else if (s1.charAt(i) == '0' && s2.charAt(i) == '0' && carry.equals("0")) {
+                ans = '0' + ans;
                 carry = "0";
             }
 
         }
 
-        return res;
+        return ans;
 
     }
 
-    public static void binarytodec(String s) {
-        Long n = Long.parseLong(s);
-        Long rem = (long) 0;
-        Long ans = (long) 0;
-        Long val = (long) 1;
-
-        while (n != 0) {
-            rem = n % 10;
-            ans = ans + rem * val;
-            n = n / 10;
-            val = val * 2;
-
-        }
-
-    }
 }
