@@ -197,7 +197,7 @@ public class mul extends Application {
                 int y = r.length();
 
                 result.setText("\n"+result.getText()+"\n-------------------------------------------------------------------------");
-                // determining initial values of A,S and P
+                // determining initial values of A(BR) ,S(BR'+1) and P(product)
 
                 // A contains m0000 (the number of zeroes are same as the length of multiplier+1... +1 is because we have got Qn+1)
                 // this means the length will be : [length of multiplicand](AC) + [length of multiplier](QR) + [1](Qn+1)
