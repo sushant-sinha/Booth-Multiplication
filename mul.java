@@ -24,7 +24,7 @@ import java.util.Scanner;
 
 
 public class mul extends Application {
-    
+
     public boolean binarymode=false;
 
     public static void main(String[] args) {
@@ -45,14 +45,14 @@ public class mul extends Application {
             "-fx-min-height: 90px; " +
             "-fx-max-width: 90px; " +
             "-fx-max-height: 90px;"
-        );
+            );
         btn1.setStyle(
             "-fx-background-radius: 5em; " +
             "-fx-min-width: 90px; " +
             "-fx-min-height: 90px; " +
             "-fx-max-width: 90px; " +
             "-fx-max-height: 90px;"
-        );
+            );
 
         Button exit = new Button("Exit");
 
@@ -65,7 +65,7 @@ public class mul extends Application {
             "-fx-min-height: 90px; " +
             "-fx-max-width: 90px; " +
             "-fx-max-height: 90px;"
-        );
+            );
 
         Text t1 = new Text("Multiplicand: ");
         Text t2 = new Text("Multiplier: ");
@@ -117,17 +117,12 @@ public class mul extends Application {
             public void handle(ActionEvent arg0) {
 
                 // all the println statements are just for debugging and users reference
-                
+
                 System.out.println(binarymode);
+
+                int m1,m2;
                 
-                /*
-                int m1 = Integer.parseInt(multiplicand.getText());
-                int m2 = Integer.parseInt(multiplier.getText());
-                */
-               
-               int m1,m2;
-                
-               if(binarymode){
+                if(binarymode){
 
                     String mcand=multiplicand.getText();
                     String mpier=multiplier.getText();
@@ -148,7 +143,7 @@ public class mul extends Application {
                         mpier=get2scomplement(mpier);
                         mpierisneg=true;
                     }
-                       
+
                     char ar1[]=mcand.toCharArray();
                     char ar2[]=mpier.toCharArray();
 
@@ -179,7 +174,7 @@ public class mul extends Application {
                 // if not binarymode.. then the input is in decimal format and ready to be used without any preprocessing
                 
                 else{
-                    
+
                     m1 = Integer.parseInt(multiplicand.getText());
                     m2 = Integer.parseInt(multiplier.getText());
                     
@@ -203,9 +198,9 @@ public class mul extends Application {
 
                 result.setText("\n"+result.getText()+"\n-------------------------------------------------------------------------");
                 // determining initial values of A,S and P
-                                
-                // A contains m0000 (the number of zeroes are same as the length of multiplier+1 +1 is because we have got Qn+1)
-                // this means the length will be : length of multiplicand (AC) + length of multiplier (QR) + 1 (Qn+1)
+
+                // A contains m0000 (the number of zeroes are same as the length of multiplier+1... +1 is because we have got Qn+1)
+                // this means the length will be : [length of multiplicand](AC) + [length of multiplier](QR) + [1](Qn+1)
                 String A = m;
                 for (int i = 0; i <= y; i++) {
                     A = A + "0";
@@ -224,7 +219,7 @@ public class mul extends Application {
                 String S = get2scomplement(m.substring(1));
                 System.out.println("S="+S);
                 
-
+                // adding sign which we removed in line no. 219
                 if (m1 <= 0) {
                     S = "0" + S;
                 }
@@ -233,6 +228,7 @@ public class mul extends Application {
                     S = "1" + S;
                 }
 
+                // appending zeroes again as was done previously with A (BR register)
                 for (int i = 0; i <= y; i++) {
                     S = S + "0";
                 }
@@ -240,12 +236,13 @@ public class mul extends Application {
                 // S is 2s complement of BR
                 result.setText(result.getText()+"\n\nThe initial value of 2's complement of BR represented by BR'+1(with appended zeroes for ease of addition) is " + S);
 
-                // String P is the combined register... presents (0)(no. of zeroes equals length of AC)+(QR is copied)+("0" initialized Qn+1) ---> see line no. 257
+                // String P is the combined register... presents (0)(no. of zeroes equals length of AC)+(QR is copied)+("0" initialized Qn+1) ---> see line no. 246
                 String P = "";
                 for (int i = 0; i < x; i++) {
                     P += "0";
                 }
-
+                
+                // initializing multiplier + Qn+1 to be zero
                 P = P + r + "0";
                 result.setText(result.getText()+"\n\nThe initial value of AC+QR+Q(n+1) is " + P);
                 result.setText(result.getText()+"\n-------------------------------------------------------------------------");
@@ -258,7 +255,7 @@ public class mul extends Application {
 
                         // add P to BR
                         P = binaryaddn(P, A);
-                        P = shiftright(P);
+                        P = arithmeticshiftright(P);
                         result.setText(result.getText()+"\nThe value of    AC+QR+Q(n+1)    after          AC+QR+Q(n+1) + BR operation and right shift is                  " + P + "          for SC = " + i);
                     }
 
@@ -267,16 +264,18 @@ public class mul extends Application {
 
                         // add P to 2s complement of BR
                         P = binaryaddn(P, S);
-                        P = shiftright(P);
-                        result.setText(result.getText()+"\nThe value of    AC+QR+Q(n+1)    after          AC+QR+Q(n+1) +  + BR'+1 operation and right shift is        " + P + "          for SC = " + i);
+                        P = arithmeticshiftright(P);
+                        result.setText(result.getText()+"\nThe value of    AC+QR+Q(n+1)    after          AC+QR+Q(n+1) + BR'+1 operation and right shift is            " + P + "          for SC = " + i);
                     }
 
                     // condition for QnQn+1=00 or QnQn+1=11                    
                     else {
-                        P = shiftright(P);
+                        P = arithmeticshiftright(P);
                         result.setText(result.getText()+"\nThe value of    AC+QR+Q(n+1)    after          right shift is                                                                             " + P +"          for SC = " + i);
                     }
                 }
+
+                result.setText(result.getText()+"\n\nSC is ZERO now. So we will END the process.");
 
                 // remove the last character which was Qn+1
                 P = P.substring(0, P.length() - 1);
@@ -284,6 +283,8 @@ public class mul extends Application {
 
                 result.setText(result.getText()+"\nThe product of the numbers entered in binary is " +P);
                 if (P.charAt(0) == '0') {
+                    
+                    // referred
                     result.setText(result.getText()+"\nIt's Decimal Equivalent is ");
                     
                     Long n = Long.parseLong(P);
@@ -303,14 +304,17 @@ public class mul extends Application {
                     
                 }
 
-                if (P.charAt(0) == '1') {
+                if (P.charAt(0) == '1'){
+                    
                     result.setText(result.getText()+"\nMSB = 1 indicates that the given number is negative." +" It's magnitude is given by the magnitude of it's 2's complement, that is ");
                     String comp=get2scomplement(P);
+                    
+                    // referred
                     Long n = Long.parseLong(comp);
                     Long rem = (long) 0;
                     Long ans = (long) 0;
                     Long val = (long) 1;
-            
+
                     while (n != 0) {
                         rem = n % 10;
                         ans = ans + rem * val;
@@ -319,8 +323,8 @@ public class mul extends Application {
                     }
                     
                     result.setText(result.getText()+ans);
-                 
-                                    
+
+
                 }
                 
                 primaryStage.setScene(scene1);
@@ -330,24 +334,26 @@ public class mul extends Application {
             }
 
         });
-        
-        exit.setOnAction(new EventHandler < ActionEvent > () {
 
-            @Override
-            public void handle(ActionEvent arg0) {
+exit.setOnAction(new EventHandler < ActionEvent > (){
 
-                System.exit(0);
+    @Override
+    public void handle(ActionEvent arg0) {
 
-            }
+        System.exit(0);
 
-        });
     }
-        
-    static String get2scomplement(String s1) {
 
-        String s2 = "";
-        for (int i = 0; i < s1.length(); i++) { // flipping the bits
+});
+}
 
+static String get2scomplement(String s1) {
+
+    String s2 = "";
+    
+        for (int i = 0; i < s1.length(); i++) {
+            
+            // flipping the bits
             if (s1.charAt(i) == '0') {
                 s2 += '1';
                 continue;
@@ -355,7 +361,7 @@ public class mul extends Application {
             s2 += '0';
         }
 
-        // referred section
+        // referred section... its doing 1s complement+1
         String s3 = "";
         String carry = "1";
         for (int i = s2.length() - 1; i >= 0; i--) {
@@ -391,6 +397,7 @@ public class mul extends Application {
 
         if(n>=0){
 
+            // referred function .toBinaryString()
             str1 = Integer.toBinaryString(n);
             // get binary and adding 0 for showing its sign
             str1 = "0" + str1;
@@ -412,7 +419,7 @@ public class mul extends Application {
 
     }
 
-    public static String shiftright(String str) {
+    public static String arithmeticshiftright(String str) {
 
         return str.charAt(0) + str.substring(0, str.length() - 1);
 
